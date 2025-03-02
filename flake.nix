@@ -34,27 +34,36 @@
             colmenaHive
             ;
         };
+      imports = [
+        ./modules/flake-parts/packagesExtensible.nix
+      ];
       systems = [
         "x86_64-linux"
         "aarch64-darwin"
         "x86_64-darwin"
       ];
       perSystem =
-        { system, lib, ... }:
+        {
+          system,
+          pkgs,
+          ...
+        }:
         let
           packagesExporter =
             (import ./packages {
-              inherit system inputs;
+              inherit system inputs pkgs;
             }).exports;
         in
         {
-          _module.args.pkgs = import inputs.nixos-unstable {
-            inherit system;
-            overlays = [ ];
-            config.allowUnfree = true;
+          config = {
+            _module.args.pkgs = import inputs.nixos-unstable {
+              inherit system;
+              overlays = [ ];
+              config.allowUnfree = true;
+            };
+            packagesExtensible = packagesExporter.packages;
+            packages = packagesExporter.derivations;
           };
-          packages = packagesExporter.derivations;
-          # legacyPackages = packagesExporter.packages;
         };
     };
 }

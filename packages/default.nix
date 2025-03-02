@@ -6,9 +6,10 @@
 {
   inputs,
   system,
+  pkgs,
 }:
 let
-  nixpkgs = inputs.nixpkgs.legacyPackages.${system};
+  nixpkgs = pkgs;
 in
 (inputs.omnibus.pops.packages {
   src = ./__fixture;

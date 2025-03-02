@@ -12,5 +12,10 @@
     bee.darwin = omnibus.flake.inputs.darwin;
     bee.system = self.system;
     bee.pkgs = import inputs.nixos-unstable { system = self.system; };
+    imports = [
+      {
+        system.stateVersion = 6;
+      }
+    ];
   };
 }
