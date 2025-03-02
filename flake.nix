@@ -36,6 +36,23 @@
         };
       imports = [
         ./modules/flake-parts/packagesExtensible.nix
+        (
+          { withSystem, ... }:
+          {
+            flake.overlays.default =
+              final: prev:
+              withSystem prev.stdenv.hostPlatform.system (
+                # perSystem parameters. Note that perSystem does not use `final` or `prev`.
+                { config, ... }: config.packagesExtensible.overlays.default
+              );
+            flake.overlays.composedPackages =
+              final: prev:
+              withSystem prev.stdenv.hostPlatform.system (
+                # perSystem parameters. Note that perSystem does not use `final` or `prev`.
+                { config, ... }: config.packagesExtensible.overlays.composedPackages
+              );
+          }
+        )
       ];
       systems = [
         "x86_64-linux"
@@ -55,15 +72,16 @@
             }).exports;
         in
         {
-          config = {
-            _module.args.pkgs = import inputs.nixos-unstable {
-              inherit system;
-              overlays = [ ];
-              config.allowUnfree = true;
-            };
-            packagesExtensible = packagesExporter.packages;
-            packages = packagesExporter.derivations;
+
+          _module.args.pkgs = import inputs.nixos-unstable {
+            inherit system;
+            overlays = [ ];
+            config.allowUnfree = true;
           };
+          packagesExtensible = packagesExporter.packages // {
+            overlays = packagesExporter.overlays;
+          };
+          packages = packagesExporter.derivations;
         };
     };
 }
