@@ -12,7 +12,19 @@
     bee.pkgs = import inputs.nixos-unstable { system = self.system; };
     bee.system = self.system;
     bee.home = inputs.omnibus.flake.inputs.home-manager;
-    imports = [ inputs.omnibus.flake.inputs.disko.nixosModules.default ];
+    imports = [
+      inputs.omnibus.flake.inputs.disko.nixosModules.default
+      {
+        fileSystems."/" = {
+          device = "/dev/disk/by-label/nixos";
+        };
+        boot.loader = {
+          systemd-boot.enable = true;
+          efi.canTouchEfiVariables = true;
+        };
+
+      }
+    ];
   };
   colmenaConfiguration = {
     deployment = {
